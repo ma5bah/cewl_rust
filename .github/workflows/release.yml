@@ -86,7 +86,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cargo build --release --locked --bin cewl --bin fab --target "${{ matrix.target }}"
+          cargo build --release --bin cewl --bin fab --target "${{ matrix.target }}"
 
       # Linux / macOS: combined .tar.gz + raw executables.
 
