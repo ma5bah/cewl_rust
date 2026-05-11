@@ -54,18 +54,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { bin: cewl, target: x86_64-unknown-linux-gnu,   os: ubuntu-latest }
-          - { bin: fab,  target: x86_64-unknown-linux-gnu,   os: ubuntu-latest }
-          - { bin: cewl, target: x86_64-unknown-linux-musl,  os: ubuntu-latest }
-          - { bin: fab,  target: x86_64-unknown-linux-musl,  os: ubuntu-latest }
-          - { bin: cewl, target: aarch64-unknown-linux-gnu,  os: ubuntu-latest }
-          - { bin: fab,  target: aarch64-unknown-linux-gnu,  os: ubuntu-latest }
-          - { bin: cewl, target: x86_64-apple-darwin,        os: macos-13 }
-          - { bin: fab,  target: x86_64-apple-darwin,        os: macos-13 }
-          - { bin: cewl, target: aarch64-apple-darwin,       os: macos-14 }
-          - { bin: fab,  target: aarch64-apple-darwin,       os: macos-14 }
-          - { bin: cewl, target: x86_64-pc-windows-msvc,     os: windows-latest }
-          - { bin: fab,  target: x86_64-pc-windows-msvc,     os: windows-latest }
+          - { target: x86_64-unknown-linux-gnu,   os: ubuntu-latest }
+          - { target: x86_64-unknown-linux-musl,  os: ubuntu-latest }
+          - { target: aarch64-unknown-linux-gnu,  os: ubuntu-latest }
+          - { target: x86_64-apple-darwin,        os: macos-13 }
+          - { target: aarch64-apple-darwin,       os: macos-14 }
+          - { target: x86_64-pc-windows-msvc,     os: windows-latest }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -85,12 +79,40 @@ jobs:
         with:
           key: ${{ matrix.target }}
 
+      # One archive per target: both binaries (tar.gz on Unix, .zip on Windows).
+      # `archive` must not use `$bin` when `bin` lists multiple names.
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
-          bin: ${{ matrix.bin }}
+          bin: cewl,fab
           target: ${{ matrix.target }}
           tar: unix
+          tar-xz: none
           zip: windows
+          archive: cewl-fab-$tag-$target
+          ref: refs/tags/${{ needs.prepare.outputs.tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checksum: sha256
+
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: cewl
+          target: ${{ matrix.target }}
+          tar: none
+          tar-xz: none
+          zip: none
+          archive: $bin-$target
+          ref: refs/tags/${{ needs.prepare.outputs.tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checksum: sha256
+
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: fab
+          target: ${{ matrix.target }}
+          tar: none
+          tar-xz: none
+          zip: none
+          archive: $bin-$target
           ref: refs/tags/${{ needs.prepare.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
           checksum: sha256
