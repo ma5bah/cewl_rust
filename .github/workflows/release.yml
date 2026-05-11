@@ -27,7 +27,16 @@ jobs:
           set -euo pipefail
           TAG="v$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          if gh release view "$TAG" >/dev/null 2>&1; then
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            if ! gh release view "$TAG" >/dev/null 2>&1; then
+              gh release create "$TAG" \
+                --target "$GITHUB_SHA" \
+                --title  "$TAG" \
+                --generate-notes
+            fi
+          elif gh release view "$TAG" >/dev/null 2>&1; then
             echo "go=false" >> "$GITHUB_OUTPUT"
             echo "Release $TAG already exists — skipping."
           else
@@ -45,12 +54,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: x86_64-unknown-linux-gnu,   os: ubuntu-latest }
-          - { target: x86_64-unknown-linux-musl,  os: ubuntu-latest }
-          - { target: aarch64-unknown-linux-gnu,  os: ubuntu-latest }
-          - { target: x86_64-apple-darwin,        os: macos-13 }
-          - { target: aarch64-apple-darwin,       os: macos-14 }
-          - { target: x86_64-pc-windows-msvc,     os: windows-latest }
+          - { bin: cewl, target: x86_64-unknown-linux-gnu,   os: ubuntu-latest }
+          - { bin: fab,  target: x86_64-unknown-linux-gnu,   os: ubuntu-latest }
+          - { bin: cewl, target: x86_64-unknown-linux-musl,  os: ubuntu-latest }
+          - { bin: fab,  target: x86_64-unknown-linux-musl,  os: ubuntu-latest }
+          - { bin: cewl, target: aarch64-unknown-linux-gnu,  os: ubuntu-latest }
+          - { bin: fab,  target: aarch64-unknown-linux-gnu,  os: ubuntu-latest }
+          - { bin: cewl, target: x86_64-apple-darwin,        os: macos-13 }
+          - { bin: fab,  target: x86_64-apple-darwin,        os: macos-13 }
+          - { bin: cewl, target: aarch64-apple-darwin,       os: macos-14 }
+          - { bin: fab,  target: aarch64-apple-darwin,       os: macos-14 }
+          - { bin: cewl, target: x86_64-pc-windows-msvc,     os: windows-latest }
+          - { bin: fab,  target: x86_64-pc-windows-msvc,     os: windows-latest }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +87,7 @@ jobs:
 
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
-          bin: cewl,fab
+          bin: ${{ matrix.bin }}
           target: ${{ matrix.target }}
           tar: unix
           zip: windows
