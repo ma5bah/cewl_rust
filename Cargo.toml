@@ -1,6 +1,6 @@
 [package]
 name = "cewl"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 description = "Custom Word List generator — Rust port of CeWL"
 license = "GPL-3.0"
@@ -22,7 +22,7 @@ chromiumoxide = { version = "0.9", default-features = false, features = ["fetche
 futures = "0.3"
 url = "2.5"
 psl = "2.1"
-scraper = "0.22"
+scraper = "0.27.0"
 regex = "1.11"
 encoding_rs = "0.8"
 html-escape = "0.2"
