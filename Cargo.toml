@@ -1,6 +1,6 @@
 [package]
 name = "cewl"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 description = "Custom Word List generator — Rust port of CeWL"
 license = "GPL-3.0"
