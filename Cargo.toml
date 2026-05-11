@@ -1,6 +1,6 @@
 [package]
 name = "cewl"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 description = "Custom Word List generator — Rust port of CeWL"
 license = "GPL-3.0"
@@ -18,7 +18,7 @@ path = "src/bin/fab.rs"
 tokio = { version = "1.43", features = ["macros", "rt-multi-thread", "signal", "sync", "time"] }
 clap = { version = "4.5", features = ["derive"] }
 reqwest = { version = "0.12", default-features = false, features = ["cookies", "rustls-tls", "socks", "json"] }
-chromiumoxide = { version = "0.9", default-features = false, features = ["fetcher", "tokio-runtime"] }
+chromiumoxide = { version = "0.9", default-features = false, features = ["fetcher", "zip8"] }
 futures = "0.3"
 url = "2.5"
 psl = "2.1"
