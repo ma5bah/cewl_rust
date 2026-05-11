@@ -32,3 +32,4 @@ rustc-ice-*.txt
 
 .scannerwork/
 sonar-project.properties
+test.*.*
