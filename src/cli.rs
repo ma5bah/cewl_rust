@@ -9,7 +9,8 @@ pub const VERSION: &str = "6.3.1-rust";
 #[command(
     name = "cewl",
     version = VERSION,
-    about = "Custom Word List generator (Rust port of CeWL)"
+    about = "Custom Word List generator (Rust port of CeWL)",
+    after_help = "Files Already Bagged (local metadata):  cewl fab [OPTIONS] <FILES>...\nStandalone fab binary remains available for scripting."
 )]
 pub struct CewlArgs {
     #[arg(long, short = 'k', help = "Keep the downloaded file (metadata temp)")]
@@ -230,22 +231,24 @@ pub struct CewlArgs {
     pub url: String,
 }
 
+pub(crate) fn finalize_spider_in_place(a: &mut CewlArgs) {
+    if a.no_render {
+        a.render = false;
+    }
+    if a.capture_url_structure {
+        a.capture_paths = true;
+        a.capture_subdomains = true;
+        a.capture_domain = true;
+    }
+    if a.browser_user_data_dir.is_some() {
+        a.headed = true;
+    }
+}
+
 impl CewlArgs {
     pub fn parse_from_env() -> Result<Self, clap::Error> {
         let mut a = Self::try_parse()?;
-        if a.no_render {
-            a.render = false;
-        }
-        if a.capture_url_structure {
-            a.capture_paths = true;
-            a.capture_subdomains = true;
-            a.capture_domain = true;
-        }
-        // A real Chrome profile requires headed mode (Chrome won't share a
-        // profile directory with another process in headless).
-        if a.browser_user_data_dir.is_some() {
-            a.headed = true;
-        }
+        finalize_spider_in_place(&mut a);
         Ok(a)
     }
 
@@ -310,7 +313,11 @@ impl CewlArgs {
 }
 
 #[derive(Clone, Debug, Parser)]
-#[command(name = "fab", version = VERSION, about = "Files Already Bagged (metadata)")]
+#[command(
+    name = "cewl",
+    version = VERSION,
+    about = "Files Already Bagged — extract author/creator metadata from local files (fab.rb parity)"
+)]
 pub struct FabArgs {
     #[arg(short = 'v', help = "Verbose")]
     pub verbose: bool,

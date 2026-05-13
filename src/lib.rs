@@ -6,6 +6,7 @@
 pub mod capture;
 pub mod cli;
 pub mod crawler;
+pub mod entry;
 pub mod fetcher;
 pub mod html;
 pub mod metadata;
